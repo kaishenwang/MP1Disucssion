@@ -1,0 +1,58 @@
+Preparation:
+Set up VM following the same instructions on mp1 handout.
+1.Download VirtualBox from https://www.virtualbox.org/and install it on your computer. VirtualBox runs on Windows, Linux, and Mac OS.
+2.Get the VM file at https://uofi.app.box.com/v/cs461vm. This file is 1.3 to 1.4 GB, so we recommend downloading it from campus.
+3.Launch VirtualBox and select File->Import Appliance to add the VM.
+4.Start the VM. There is a user named ubuntu with password ubuntu.
+In case the screen is too small, adjust screen size at View->Virtual Screen 1.
+gedit can be used as text editor.
+All the resources are available at https://github.com/kwang40/MP1Disucssion Inside week1 directory.
+Do not consider the above link as permanent.
+
+During Discussion:
+Introduce yourself to the class.
+
+Go through the slides until slide 35. For the following slide, run live demo instead of showing slides.
+
+"Make" in the directory.
+Show the code of simpleOutput.c and mentions that it just prints 0xfffffff.
+run "gdb ./simpleOutput"
+set breakpoint at function by "b output"
+run the program by "r", and explains that the program now stops at the start of function output.
+show assembly code of output function by "disas output". show the "push %ebp, mov %esp, %ebp" instructions we mentioned earlier.
+explains that "sub $0x18,%esp" reserves room for potential local variables.
+continue "c" and see it displays "ffffffff". "q" to quit.
+
+Say "Instead of calling function output in main function, can we call function output() from assembly code."
+The answer is yes, show demo.c, demo.S and Makefile.
+Go through the path, show the path from the main() in .c, to your_asm_fn in .S, and finally reach output() in .c.
+Explain how arguments (candy) is preapred in the assembly code (push 0xffffffff on the stack), and call output.
+repeat some steps real quick, "gdb ./demo, b output, r, disas output"
+We see instruction "mov    $0x80c5848,%eax", we may wonder what is inside address 0x80c5848.
+We examine it by "x 0x80c5848", we see "0x80c5848:	0x000a7825". 0x000a7825 doesn't make much sense here. But if we examine it as string,
+"x/s 0x80c5848", we see "%x\n", which is the argument we put for printf().
+We see that "0x000a7825" is string "%x\n" in memory. We wonder if we can just call printf in the assembly code.
+"c q" to finish the program and quit gdb.
+We make the following changes to the assembly code. We want to prepare the arguments for the printf.
+There are two arguments, "%x\n", and 0xfffffff. Recall the calling conventions, we need to push from right to left.
+After push $0xfffffff, we push "$0x000a7825" (which we know is "%x\n").
+Code changes happen here:
+add "push $0x000a7825" after "push $0xffffffff".
+change "call output" to "call printf".
+"make clean && make" and run "./demo". We see segmentation fault instead of "ffffff". Ask if any student could explain the reason.
+Explain that the first argument for printf is the memory address of a string, instead of the content of the string.
+Draw the picture on slide 43 on white board or just show slide 43.
+How we can do this? We can store the string on the stack and push that address as the argument.
+Draw stack frame, similar to the figure on slide 45.
+Write "push $0x000a7825", say that now register esp points to a memory location that contains the desired string. Draw esp on figure.
+Write "move %esp, %eax", say that now register eax also points to a memory location that contains the desired string. Draw eax on figure.
+after "push $0xfffffff", write "push %eax" and draw the figure: the top cell points to the cell contains the desired string.
+change "call printf" back to "call output"
+"make clean && make", "./demo" to show the result. Full code is at slide 44.
+
+Go back to slides 47 & 48 to discuss Endianness.
+
+Talk about system call using slide 49. Then open mkdirProgram.S. The directory we want to create is "cat". Here is the ascii code for "cat".
+Reverse order (because of little endianess). Prepare eax, ebx, ecx.
+"ls" and show that there's currently no "cat" directory.
+"./mkdirProgram" and show the directory "cat" is created.
