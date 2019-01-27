@@ -1,0 +1,35 @@
+Preparation:
+Set up VM following the same instructions on mp1 handout.
+1.Download VirtualBox from https://www.virtualbox.org/and install it on your computer. VirtualBox runs on Windows, Linux, and Mac OS.
+2.Get the VM file at https://uofi.app.box.com/v/cs461vm. This file is 1.3 to 1.4 GB, so we recommend downloading it from campus.
+3.Launch VirtualBox and select File->Import Appliance to add the VM.
+4.Start the VM. There is a user named ubuntu with password ubuntu.
+In case the screen is too small, adjust screen size at View->Virtual Screen 1.
+gedit can be used as text editor.
+All the resources are available at https://github.com/kwang40/MP1Disucssion Inside week1 directory.
+Do not consider the above link as permanent.
+
+For the demo:
+Overwrite variables on the stack:
+Understand the function first, type[] will be "fire type pokemon".
+User enter will be the name.
+Run "./demo" and show what will the program do.
+The first goal is to overwrite the content in type char array,
+thus the type will no longer be "fire type pokemon".
+We observe that name has 32 bytes, and name buf should be right above type,
+so the first 32 bytes we write will be in name, and the next will go in to type[].
+Draw a stack on the white board.
+show the code in "demo.py" and run "python demo.py | ./demo".
+
+Overwrite the return address:
+We observe that there's another secret function which will print a secret message.
+Currently it will not be invoked and our mission is to print that secret message.
+We want to overwrite the return address of main function to the address of secret.
+run "gdb ./demo", "disas secret" to find address of secret function.
+Next mission is to find address of "name".
+"disas main" to find the location of "gets()" function invoked at address 0xXXXX.
+"b *0xXXXX" break before gets(). gets() has only one argument, name, so the address of
+name should be on the top of the stack. "x $esp" to find address of name.
+"info reg ebp" to find address of ebp. Use stack figure on the white board to illustrate
+the number of bytes we want to overwrite. Show the code in demo2.py and
+run "python demo2.py | ./demo".
